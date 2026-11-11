@@ -1,38 +1,26 @@
-Mars Photos
-==================================
+# Actividad Mars Photos
 
-Mars Photos app is a demo app that shows actual images of Mars' surface. These images are
-real-life photos from Mars captured by NASA's Mars rovers. The data is stored on a Web server
-as a REST web service.
+Implementación del codelab [Cómo obtener datos de Internet](https://developer.android.com/codelabs/basic-android-kotlin-compose-getting-data-internet?hl=es-419).
 
-This app demonstrated the use of [Retrofit](https://square.github.io/retrofit/) to make REST requests to the web service, [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) to
-handle the deserialization of the returned JSON to Kotlin data objects, and [Coil](https://coil-kt.github.io/coil/) to load images by URL.
+## Resultado
 
-Pre-requisites
---------------
+La aplicación consulta `https://android-kotlin-fun-mars-server.appspot.com/photos` con Retrofit y una función `suspend`. Kotlin Serialization convierte el JSON en `List<MarsPhoto>` usando `@Serializable` y `@SerialName("img_src")`.
 
-You need to know:
-- How to create Composable functions.
-- How to use architecture components including ViewModel.
-- How to use coroutines for long-running tasks.
-- Familiarity with lazy grid
+El ViewModel ejecuta la consulta en `viewModelScope` y expone los estados de carga, éxito y error. La pantalla muestra `Success: N Mars photos retrieved`, donde N es el tamaño real de la respuesta. Si falla la conexión, el servidor o el formato de los datos, muestra un error y permite reintentar. El manifiesto declara el permiso `INTERNET`.
 
-Getting Started
----------------
+Este codelab termina con el conteo de registros; la cuadrícula de imágenes corresponde a una actividad posterior. Se conserva el repositorio y la inyección manual de dependencias que ya contenía el proyecto base para permitir pruebas aisladas.
 
-1. [Install Android Studio](https://developer.android.com/studio/install.html), if you don't already
-   have it.
-2. Download the sample.
-3. Import the sample into Android Studio.
-4. Build and run the sample.
+## Ejecución
 
-## [Build this app through hands-on codelabs in the Android Basics with Compose Course](https://developer.android.com/courses/android-basics-compose/course)
+1. Abrir esta carpeta en Android Studio y sincronizar Gradle.
+2. Usar JDK 17 o superior, Android SDK 35 y un dispositivo con API 24 o superior.
+3. Ejecutar `app` con conexión a Internet.
+4. Para comprobar el error, desactivar la conexión y pulsar Retry después de reiniciar la aplicación; restaurar la conexión y reintentar.
 
-### [Get data from the internet](https://developer.android.com/codelabs/basic-android-kotlin-compose-getting-data-internet)
-Learn how to use community-developed libraries to connect to a web service to retrieve and display data in your Android Kotlin compose app. 
+## Verificación local
 
-### [Add repository and Manual DI](https://developer.android.com/codelabs/basic-android-kotlin-compose-add-repository)
-Learn how to improve the architecture of the app by separating the network calls into a repository.
+```sh
+./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug
+```
 
-### [Load and display images from the internet](https://developer.android.com/codelabs/basic-android-kotlin-compose-load-images)
-Use the Coil library to load and display photos from the internet in your Android Compose app. 
+Código base de Google, conservando su licencia Apache 2.0.

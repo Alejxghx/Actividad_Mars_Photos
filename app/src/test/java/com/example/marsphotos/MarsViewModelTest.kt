@@ -16,11 +16,15 @@
 package com.example.marsphotos
 
 import com.example.marsphotos.fake.FakeDataSource
+import com.example.marsphotos.data.MarsPhotosRepository
+import com.example.marsphotos.model.MarsPhoto
 import com.example.marsphotos.fake.FakeNetworkMarsPhotosRepository
 import com.example.marsphotos.rules.TestDispatcherRule
 import com.example.marsphotos.ui.screens.MarsUiState
 import com.example.marsphotos.ui.screens.MarsViewModel
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.SerializationException
+import java.io.IOException
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -29,6 +33,32 @@ class MarsViewModelTest {
 
     @get:Rule
     val testDispatcher = TestDispatcherRule()
+
+    @Test
+    fun networkFailure_canRetryAndRecover() = runTest {
+        var fail = true
+        val repository = object : MarsPhotosRepository {
+            override suspend fun getMarsPhotos(): List<MarsPhoto> {
+                if (fail) throw IOException("Offline")
+                return FakeDataSource.photosList
+            }
+        }
+        val viewModel = MarsViewModel(repository)
+        assertEquals(MarsUiState.Error, viewModel.marsUiState)
+        fail = false
+        viewModel.getMarsPhotos()
+        assertEquals(MarsUiState.Success(FakeDataSource.photosList), viewModel.marsUiState)
+    }
+
+    @Test
+    fun malformedResponse_showsError() = runTest {
+        val repository = object : MarsPhotosRepository {
+            override suspend fun getMarsPhotos(): List<MarsPhoto> {
+                throw SerializationException("Invalid JSON")
+            }
+        }
+        assertEquals(MarsUiState.Error, MarsViewModel(repository).marsUiState)
+    }
 
     @Test
     fun marsViewModel_getMarsPhotos_verifyMarsUiStateSuccess() =

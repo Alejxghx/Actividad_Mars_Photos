@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.model.MarsPhoto
+import kotlinx.serialization.SerializationException
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -64,6 +65,8 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
             } catch (e: IOException) {
                 MarsUiState.Error
             } catch (e: HttpException) {
+                MarsUiState.Error
+            } catch (e: SerializationException) {
                 MarsUiState.Error
             }
         }
